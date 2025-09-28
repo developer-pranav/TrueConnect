@@ -31,24 +31,42 @@ jobs:
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas --icon=icon.ico main.py
             mv dist/main.exe dist/TrueConnect-win.exe
+
           elif [[ "$RUNNER_OS" == "Linux" ]]; then
             pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
             mv dist/main dist/TrueConnect-linux
             tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
+
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
             mv dist/main dist/TrueConnect-mac
             mkdir -p dist/dmg
             cp dist/TrueConnect-mac dist/dmg/
             hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
-          fi
 
-      - name: Upload to GitHub Release
+      # Upload for Windows
+      - name: Upload Windows build
+        if: runner.os == 'Windows'
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.tar.gz
+          files: dist/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload for Linux
+      - name: Upload Linux build
+        if: runner.os == 'Linux'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload for macOS
+      - name: Upload macOS build
+        if: runner.os == 'macOS'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
