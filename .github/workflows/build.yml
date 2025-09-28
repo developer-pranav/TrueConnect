@@ -11,7 +11,16 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: TrueConnect-linux
+            asset_name: TrueConnect-linux.tar.gz
+          - os: windows-latest
+            artifact_name: TrueConnect-win.exe
+            asset_name: TrueConnect-win.exe
+          - os: macos-latest
+            artifact_name: TrueConnect-mac.dmg
+            asset_name: TrueConnect-mac.dmg
 
     steps:
       - name: Checkout code
@@ -25,50 +34,43 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller pandas fpdf fpdf2
+          pip install pyinstaller pandas fpdf2
 
-      - name: Build Executable
-        run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas --icon=icon.ico main.py
-            mv dist/main.exe dist/TrueConnect-win.exe
-
-          elif [[ "$RUNNER_OS" == "Linux" ]]; then
-            pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
-            mv dist/main dist/TrueConnect-linux
-            tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
-
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
-            mv dist/main dist/TrueConnect-mac
-            mkdir -p dist/dmg
-            cp dist/TrueConnect-mac dist/dmg/
-            ls -R dist
-            hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
-
-      # Upload for Windows
-      - name: Upload Windows build
+      # Windows Build
+      - name: Build Windows Executable
         if: runner.os == 'Windows'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          move dist\main.exe dist\TrueConnect-win.exe
+        shell: cmd
 
-      # Upload for Linux
-      - name: Upload Linux build
+      # Linux Build
+      - name: Build Linux Executable
         if: runner.os == 'Linux'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          mv dist/main dist/TrueConnect-linux
+          tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
+        shell: bash
 
-      # Upload for macOS
-      - name: Upload macOS build
+      # macOS Build
+      - name: Build macOS Executable
         if: runner.os == 'macOS'
+        run: |
+          pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          mv dist/main dist/TrueConnect-mac
+          mkdir -p dist/dmg
+          cp dist/TrueConnect-mac dist/dmg/
+          hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
+        shell: bash
+
+      # Upload artifacts
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*.dmg
+          files: |
+            dist/*.exe
+            dist/*.tar.gz
+            dist/*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
