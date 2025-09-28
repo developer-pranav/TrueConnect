@@ -71,13 +71,29 @@ jobs:
           set VERSION=%GITHUB_REF_NAME:v=%
           set VERSION=%VERSION:.=-%
           echo "Version: %VERSION%"
+          
+          rem Check for additional resources
+          set EXTRA_ARGS=
           if exist "icon.ico" (
             echo "Using icon.ico"
-            pyinstaller --onefile  --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            set EXTRA_ARGS=--icon=icon.ico
           ) else (
-            echo "No icon.ico found, building without icon"
-            pyinstaller --onefile  --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            echo "No icon.ico found"
           )
+          
+          if exist "fonts" (
+            echo "Adding fonts folder"
+            set EXTRA_ARGS=%EXTRA_ARGS% --add-data "fonts;fonts"
+          )
+          
+          if exist "assets" (
+            echo "Adding assets folder"
+            set EXTRA_ARGS=%EXTRA_ARGS% --add-data "assets;assets"
+          )
+          
+          echo "PyInstaller arguments: %EXTRA_ARGS%"
+          pyinstaller --onefile %EXTRA_ARGS% --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          
           echo "Contents of dist folder:"
           dir dist
           if exist "dist\main.exe" (
@@ -97,13 +113,29 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}  # Remove 'v' prefix
           VERSION=${VERSION//./-}       # Replace dots with hyphens
           echo "Version: $VERSION"
+          
+          # Build PyInstaller arguments
+          EXTRA_ARGS=""
           if [ -f "icon.ico" ]; then
             echo "Using icon.ico"
-            pyinstaller --onefile  --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            EXTRA_ARGS="--icon=icon.ico"
           else
-            echo "No icon.ico found, building without icon"
-            pyinstaller --onefile  --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            echo "No icon.ico found"
           fi
+          
+          if [ -d "fonts" ]; then
+            echo "Adding fonts folder"
+            EXTRA_ARGS="$EXTRA_ARGS --add-data fonts:fonts"
+          fi
+          
+          if [ -d "assets" ]; then
+            echo "Adding assets folder"
+            EXTRA_ARGS="$EXTRA_ARGS --add-data assets:assets"
+          fi
+          
+          echo "PyInstaller arguments: $EXTRA_ARGS"
+          pyinstaller --onefile $EXTRA_ARGS --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          
           echo "Contents of dist folder:"
           ls -la dist/
           if [ -f "dist/main" ]; then
@@ -124,13 +156,29 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}  # Remove 'v' prefix
           VERSION=${VERSION//./-}       # Replace dots with hyphens
           echo "Version: $VERSION"
+          
+          # Build PyInstaller arguments
+          EXTRA_ARGS=""
           if [ -f "icon.ico" ]; then
             echo "Using icon.ico"
-            pyinstaller --onefile  --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            EXTRA_ARGS="--icon=icon.ico"
           else
-            echo "No icon.ico found, building without icon"
-            pyinstaller --onefile  --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            echo "No icon.ico found"
           fi
+          
+          if [ -d "fonts" ]; then
+            echo "Adding fonts folder"
+            EXTRA_ARGS="$EXTRA_ARGS --add-data fonts:fonts"
+          fi
+          
+          if [ -d "assets" ]; then
+            echo "Adding assets folder"
+            EXTRA_ARGS="$EXTRA_ARGS --add-data assets:assets"
+          fi
+          
+          echo "PyInstaller arguments: $EXTRA_ARGS"
+          pyinstaller --onefile $EXTRA_ARGS --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          
           echo "Contents of dist folder:"
           ls -la dist/
           if [ -f "dist/main" ]; then
