@@ -71,7 +71,13 @@ jobs:
           set VERSION=%GITHUB_REF_NAME:v=%
           set VERSION=%VERSION:.=-%
           echo "Version: %VERSION%"
-          pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          if exist "icon.ico" (
+            echo "Using icon.ico"
+            pyinstaller --onefile --windowed --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          ) else (
+            echo "No icon.ico found, building without icon"
+            pyinstaller --onefile --windowed --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          )
           echo "Contents of dist folder:"
           dir dist
           if exist "dist\main.exe" (
@@ -91,7 +97,13 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}  # Remove 'v' prefix
           VERSION=${VERSION//./-}       # Replace dots with hyphens
           echo "Version: $VERSION"
-          pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          if [ -f "icon.ico" ]; then
+            echo "Using icon.ico"
+            pyinstaller --onefile --windowed --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          else
+            echo "No icon.ico found, building without icon"
+            pyinstaller --onefile --windowed --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          fi
           echo "Contents of dist folder:"
           ls -la dist/
           if [ -f "dist/main" ]; then
@@ -112,7 +124,13 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}  # Remove 'v' prefix
           VERSION=${VERSION//./-}       # Replace dots with hyphens
           echo "Version: $VERSION"
-          pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          if [ -f "icon.ico" ]; then
+            echo "Using icon.ico"
+            pyinstaller --onefile --windowed --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          else
+            echo "No icon.ico found, building without icon"
+            pyinstaller --onefile --windowed --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+          fi
           echo "Contents of dist folder:"
           ls -la dist/
           if [ -f "dist/main" ]; then

@@ -77,7 +77,7 @@ def create_pdf_report(not_following_back: Set[str], fans: Set[str]) -> str:
     pdf.add_font("DejaVu", "", regular_font_path, uni=True)
     pdf.add_font("DejaVu", "B", bold_font_path, uni=True)
 
-    logo_path = resource_path("assets/logo.jpg")
+    logo_path = resource_path("assets/company_logo.jpg")
     page_width = pdf.w - pdf.l_margin - pdf.r_margin
     
     pdf.set_font("DejaVu", "B", 20)
