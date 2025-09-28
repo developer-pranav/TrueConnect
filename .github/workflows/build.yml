@@ -40,7 +40,20 @@ jobs:
           pip install pyinstaller pandas fpdf2
 
       # Debug: List files before build
-      - name: Debug - List files before build
+      - name: Debug - List files before build (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "Current directory contents:"
+          dir
+          echo "Python version:"
+          python --version
+          echo "PyInstaller version:"
+          pyinstaller --version
+        shell: cmd
+
+      # Debug: List files before build (Unix)
+      - name: Debug - List files before build (Unix)
+        if: runner.os != 'Windows'
         run: |
           echo "Current directory contents:"
           ls -la
@@ -48,6 +61,7 @@ jobs:
           python --version
           echo "PyInstaller version:"
           pyinstaller --version
+        shell: bash
 
       # Windows Build
       - name: Build Windows Executable
@@ -105,10 +119,18 @@ jobs:
         shell: bash
 
       # Debug: List final files
-      - name: Debug - List final files
+      - name: Debug - List final files (Windows)
+        if: runner.os == 'Windows'
         run: |
           echo "Final dist folder contents:"
-          ls -la dist/
+          if exist dist dir dist
+        shell: cmd
+
+      - name: Debug - List final files (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          echo "Final dist folder contents:"
+          if [ -d "dist" ]; then ls -la dist/; fi
         shell: bash
 
       # Upload artifacts conditionally
