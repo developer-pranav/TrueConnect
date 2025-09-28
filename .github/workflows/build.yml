@@ -73,10 +73,10 @@ jobs:
           echo "Version: %VERSION%"
           if exist "icon.ico" (
             echo "Using icon.ico"
-            pyinstaller --onefile --windowed --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            pyinstaller --onefile  --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           ) else (
             echo "No icon.ico found, building without icon"
-            pyinstaller --onefile --windowed --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            pyinstaller --onefile  --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           )
           echo "Contents of dist folder:"
           dir dist
@@ -99,10 +99,10 @@ jobs:
           echo "Version: $VERSION"
           if [ -f "icon.ico" ]; then
             echo "Using icon.ico"
-            pyinstaller --onefile --windowed --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            pyinstaller --onefile  --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           else
             echo "No icon.ico found, building without icon"
-            pyinstaller --onefile --windowed --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            pyinstaller --onefile  --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           fi
           echo "Contents of dist folder:"
           ls -la dist/
@@ -126,10 +126,10 @@ jobs:
           echo "Version: $VERSION"
           if [ -f "icon.ico" ]; then
             echo "Using icon.ico"
-            pyinstaller --onefile --windowed --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            pyinstaller --onefile  --icon=icon.ico --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           else
             echo "No icon.ico found, building without icon"
-            pyinstaller --onefile --windowed --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            pyinstaller --onefile  --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           fi
           echo "Contents of dist folder:"
           ls -la dist/
