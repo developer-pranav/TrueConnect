@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -42,6 +43,7 @@ jobs:
             mv dist/main dist/TrueConnect-mac
             mkdir -p dist/dmg
             cp dist/TrueConnect-mac dist/dmg/
+            ls -R dist
             hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
 
       # Upload for Windows
