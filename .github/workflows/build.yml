@@ -1,0 +1,54 @@
+name: Cross-Platform Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"   # Runs only when you push tags like v1.0, v2.0 etc.
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pandas fpdf fpdf2
+
+      - name: Build Executable
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas --icon=icon.ico main.py
+            mv dist/main.exe dist/TrueConnect-win.exe
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            mv dist/main dist/TrueConnect-linux
+            tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
+            mv dist/main dist/TrueConnect-mac
+            mkdir -p dist/dmg
+            cp dist/TrueConnect-mac dist/dmg/
+            hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
+          fi
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
