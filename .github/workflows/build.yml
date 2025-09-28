@@ -68,12 +68,15 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           echo "Building Windows executable..."
+          set VERSION=%GITHUB_REF_NAME:v=%
+          set VERSION=%VERSION:.=-%
+          echo "Version: %VERSION%"
           pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           echo "Contents of dist folder:"
           dir dist
           if exist "dist\main.exe" (
-            move "dist\main.exe" "dist\TrueConnect-win.exe"
-            echo "Successfully renamed to TrueConnect-win.exe"
+            move "dist\main.exe" "dist\trueconnect-win-%VERSION%.exe"
+            echo "Successfully renamed to trueconnect-win-%VERSION%.exe"
           ) else (
             echo "ERROR: main.exe not found in dist folder"
             exit 1
@@ -85,13 +88,16 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           echo "Building Linux executable..."
+          VERSION=${GITHUB_REF_NAME#v}  # Remove 'v' prefix
+          VERSION=${VERSION//./-}       # Replace dots with hyphens
+          echo "Version: $VERSION"
           pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           echo "Contents of dist folder:"
           ls -la dist/
           if [ -f "dist/main" ]; then
-            mv dist/main dist/TrueConnect-linux
-            tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
-            echo "Successfully created TrueConnect-linux.tar.gz"
+            mv dist/main dist/trueconnect-linux-$VERSION
+            tar -czvf dist/trueconnect-linux-$VERSION.tar.gz -C dist trueconnect-linux-$VERSION
+            echo "Successfully created trueconnect-linux-$VERSION.tar.gz"
           else
             echo "ERROR: main executable not found in dist folder"
             exit 1
@@ -103,15 +109,18 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           echo "Building macOS executable..."
+          VERSION=${GITHUB_REF_NAME#v}  # Remove 'v' prefix
+          VERSION=${VERSION//./-}       # Replace dots with hyphens
+          echo "Version: $VERSION"
           pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
           echo "Contents of dist folder:"
           ls -la dist/
           if [ -f "dist/main" ]; then
-            mv dist/main dist/TrueConnect-mac
+            mv dist/main dist/trueconnect-mac-$VERSION
             mkdir -p dist/dmg
-            cp dist/TrueConnect-mac dist/dmg/
-            hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
-            echo "Successfully created TrueConnect-mac.dmg"
+            cp dist/trueconnect-mac-$VERSION dist/dmg/
+            hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/trueconnect-mac-$VERSION.dmg
+            echo "Successfully created trueconnect-mac-$VERSION.dmg"
           else
             echo "ERROR: main executable not found in dist folder"
             exit 1
