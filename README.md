@@ -41,9 +41,8 @@ TrueConnect is a simple yet powerful Instagram analytics tool that helps you man
 
 ## 🧰 Tech Stack
 
-- **Language**: Python  
-- **Data Handling**: Pandas (for JSON parsing and analysis)  
-- **Report Generation**: FPDF (for PDF export), CSV (native Python/Pandas)  
+- **Language**: Python   
+- **Report Generation**: FPDF (for PDF export) 
 - **File Input**: Works with Instagram’s exported JSON data  
 - **Environment**: Virtualenv for project isolation  
 
