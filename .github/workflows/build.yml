@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"   # Runs only when you push tags like v1.0, v2.0 etc.
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -36,41 +39,99 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller pandas fpdf2
 
+      # Debug: List files before build
+      - name: Debug - List files before build
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Python version:"
+          python --version
+          echo "PyInstaller version:"
+          pyinstaller --version
+
       # Windows Build
       - name: Build Windows Executable
         if: runner.os == 'Windows'
         run: |
+          echo "Building Windows executable..."
           pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
-          move dist\main.exe dist\TrueConnect-win.exe
+          echo "Contents of dist folder:"
+          dir dist
+          if exist "dist\main.exe" (
+            move "dist\main.exe" "dist\TrueConnect-win.exe"
+            echo "Successfully renamed to TrueConnect-win.exe"
+          ) else (
+            echo "ERROR: main.exe not found in dist folder"
+            exit 1
+          )
         shell: cmd
 
       # Linux Build
       - name: Build Linux Executable
         if: runner.os == 'Linux'
         run: |
+          echo "Building Linux executable..."
           pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
-          mv dist/main dist/TrueConnect-linux
-          tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
+          echo "Contents of dist folder:"
+          ls -la dist/
+          if [ -f "dist/main" ]; then
+            mv dist/main dist/TrueConnect-linux
+            tar -czvf dist/TrueConnect-linux.tar.gz -C dist TrueConnect-linux
+            echo "Successfully created TrueConnect-linux.tar.gz"
+          else
+            echo "ERROR: main executable not found in dist folder"
+            exit 1
+          fi
         shell: bash
 
       # macOS Build
       - name: Build macOS Executable
         if: runner.os == 'macOS'
         run: |
+          echo "Building macOS executable..."
           pyinstaller --onefile --hidden-import=fpdf --hidden-import=fpdf.fpdf --hidden-import=pandas main.py
-          mv dist/main dist/TrueConnect-mac
-          mkdir -p dist/dmg
-          cp dist/TrueConnect-mac dist/dmg/
-          hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
+          echo "Contents of dist folder:"
+          ls -la dist/
+          if [ -f "dist/main" ]; then
+            mv dist/main dist/TrueConnect-mac
+            mkdir -p dist/dmg
+            cp dist/TrueConnect-mac dist/dmg/
+            hdiutil create -volname "TrueConnect" -srcfolder dist/dmg -ov -format UDZO dist/TrueConnect-mac.dmg
+            echo "Successfully created TrueConnect-mac.dmg"
+          else
+            echo "ERROR: main executable not found in dist folder"
+            exit 1
+          fi
         shell: bash
 
-      # Upload artifacts
-      - name: Upload Release Assets
+      # Debug: List final files
+      - name: Debug - List final files
+        run: |
+          echo "Final dist folder contents:"
+          ls -la dist/
+        shell: bash
+
+      # Upload artifacts conditionally
+      - name: Upload Windows Release Assets
+        if: runner.os == 'Windows'
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            dist/*.exe
-            dist/*.tar.gz
-            dist/*.dmg
+          files: dist/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux Release Assets
+        if: runner.os == 'Linux'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS Release Assets
+        if: runner.os == 'macOS'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
